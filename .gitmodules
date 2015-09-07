@@ -1,0 +1,6 @@
+[submodule "include/cppzmq"]
+	path = include/cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "include/boost.application"]
+	path = include/boost.application
+	url = https://github.com/retf/Boost.Application.git
