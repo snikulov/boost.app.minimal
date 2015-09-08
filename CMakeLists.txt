@@ -7,7 +7,6 @@
 #      include/
 #      src/
 #      test/
-#
 #--------------------------------------------
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
@@ -25,6 +24,7 @@ option(WITH_UT "Build Unit Test" OFF)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+find_package(Threads)
 find_package(Boost 1.58.0 EXACT REQUIRED
     COMPONENTS
         thread system date_time chrono regex
@@ -34,23 +34,32 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include/cppzmq)
+include_directories(${PROJECT_SOURCE_DIR}/include/boost.application/include)
+
 
 set(HDR_FILES
+    include/service.hpp
 )
 set(SRC_FILES
     src/main.cpp
 )
 
-source_group("Source Files" FILES ${SRC_FILES})
+source_group( "Header Files" FILES ${HDR_FILES} )
+source_group( "Source Files" FILES ${SRC_FILES} )
 
 # build target
 add_executable(${PROJECT_NAME}
    ${SRC_FILES} ${HDR_FILES}
    )
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS "BOOST_APPLICATION_FEATURE_NS_SELECT_BOOST")
+
 
 # linker command - add additional libraries for build target
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+target_link_libraries( ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} )
+target_link_libraries( ${PROJECT_NAME} ${Boost_LIBRARIES} )
+
+set_property( TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11 )
 
 if(WITH_UT)
     include(CTest)
