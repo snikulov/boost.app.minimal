@@ -25,7 +25,7 @@ option(WITH_UT "Build Unit Test" OFF)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(Threads)
-find_package(Boost 1.58.0 EXACT REQUIRED
+find_package(Boost 1.58.0 REQUIRED
     COMPONENTS
         thread system date_time chrono regex
         filesystem atomic program_options unit_test_framework)
@@ -52,8 +52,10 @@ source_group( "Source Files" FILES ${SRC_FILES} )
 add_executable(${PROJECT_NAME}
    ${SRC_FILES} ${HDR_FILES}
    )
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_DEFINITIONS "BOOST_APPLICATION_FEATURE_NS_SELECT_BOOST")
-
+set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS "BOOST_APPLICATION_FEATURE_NS_SELECT_BOOST")
+if( WIN32 )
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS "_WIN32_WINNT=_WIN32_WINNT_VISTA")
+endif()
 
 # linker command - add additional libraries for build target
 target_link_libraries( ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} )
