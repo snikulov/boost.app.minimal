@@ -17,7 +17,12 @@ public:
 
     int operator()()
     {
-//        ctx_.find<boost::application::wait_for_termination_request>()->wait();
+        boost::shared_ptr<boost::application::status> st = ctx_.find<boost::application::status>();
+        while (st->state() != boost::application::status::stopped)
+        {
+            // sleep one second...
+            boost::this_thread::sleep(boost::posix_time::seconds(1));
+        }
         return 0;
     }
 
