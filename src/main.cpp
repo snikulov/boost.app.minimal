@@ -13,7 +13,6 @@ namespace po = boost::program_options;
     #include <boost/bind.hpp>
     namespace elib = boost;
 #else
-    #include <system_error>
     namespace elib = std;
 #endif
 
@@ -28,12 +27,13 @@ int main(int argc, char * argv[])
     app::context ctx;
     service s(ctx);
 
-    boost::shared_ptr<app::path> mypath = elib::make_shared< app::path >();
+    elib::shared_ptr<app::path> mypath = elib::make_shared< app::path >();
     ctx.insert< app::path >(mypath);
     ctx.insert< app::args >(elib::make_shared< app::args >(argc, argv));
     ctx.insert< app::termination_handler >(
         elib::make_shared< app::termination_handler_default_behaviour >(
-            elib::bind(&service::stop, &s)
+        [&s](){ return s.stop(); }
+//            elib::bind(&service::stop, &s)
             ));
     // define our simple installation schema options
     po::options_description opts("service options");
@@ -53,7 +53,6 @@ int main(int argc, char * argv[])
         ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, opts), vm);
-    boost::system::error_code ec;
 
     if (vm.count("help"))
     {
@@ -67,6 +66,7 @@ int main(int argc, char * argv[])
 #if defined(BOOST_WINDOWS_API) && !defined(__MINGW32__)
     else if (vm.count("install"))
     {
+        boost::system::error_code ec;
         app::example::install_windows_service(
             app::setup_arg(vm["name"].as<std::string>()),
             app::setup_arg(vm["display"].as<std::string>()),
@@ -85,6 +85,7 @@ int main(int argc, char * argv[])
     }
     else if (vm.count("uninstall"))
     {
+        boost::system::error_code ec;
         app::example::uninstall_windows_service(
             app::setup_arg(vm["name"].as<std::string>()),
             app::setup_arg(mypath->executable_path_name())).uninstall(ec);
